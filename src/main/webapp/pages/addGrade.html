@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>添加班级信息</title>
+    <meta name="description" content="教材管理系统">
+    <meta name="keywords" content="教材管理系统">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/element-ui.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/index.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../js/vue.js"></script>
+    <script src="../js/element-ui.js"></script>
+    <script src="../plugins/jquery/dist/jquery.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script src="../js/base.js"></script>
+</head>
+<body>
+<h2 style="text-indent:2em">管理员添加班级</h2>
+<div id="app">
+    <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+        &nbsp;&nbsp;&nbsp;&nbsp;年级:
+        <el-select v-model="grade" placeholder="请选择年级">
+            <el-option
+                    v-for="item in grades"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+            </el-option>
+        </el-select>
+        <br/><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;专业:
+        <el-select v-model="major" placeholder="请选择专业">
+            <el-option
+                    v-for="item in majors"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+            </el-option>
+        </el-select>
+        <br/><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;班级:
+        <el-select v-model="g_class" placeholder="请选择班级">
+            <el-option
+                    v-for="item in g_classs"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+            </el-option>
+        </el-select>
+        <br/><br/>
+        <el-form-item label="辅导员" prop="instructor">
+            <el-input type="text" v-model="ruleForm.instructor" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="辅导员电话" prop="instructor_phone">
+            <el-input type="text" v-model.number="ruleForm.instructor_phone" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="班级人数" prop="g_count">
+            <el-input type="text" v-model.number="ruleForm.g_count" autocomplete="off"></el-input>
+        </el-form-item>
+
+        <el-form-item>
+            <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+            <el-button @click="resetForm('ruleForm')">重置</el-button>
+        </el-form-item>
+    </el-form>
+</div>
+<script>
+    var Main = {
+        data() {
+
+            var checkInstructor = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入辅导员姓名'));
+                } else {
+                    callback();
+                }
+            };
+            var checkInstructor_phone = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('辅导员手机号码不能为空'));
+                }
+                setTimeout(() => {
+                    if (!Number.isFinite(value)) {
+                        callback(new Error('请输入数字值'));
+                    } else {
+                        callback();
+                    }
+                }, 100);
+            };
+            var checkG_class = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('请添加班级人数'));
+                }
+                setTimeout(() => {
+                    if (!Number.isFinite(value)) {
+                        callback(new Error('请输入数字值'));
+                    } else {
+                        callback();
+                    }
+                }, 100);
+            };
+            return {
+                majors:[{
+                    value: '软件工程',
+                    label: '软件工程'
+                }, {
+                    value: '大数据',
+                    label: '大数据'
+                }, {
+                    value: '电子技术',
+                    label: '电子技术'
+                }, {
+                    value: '移动互联',
+                    label: '移动互联'
+                }, {
+                    value: '网络技术',
+                    label: '网络技术'
+                }],
+                major:'',
+                g_classs:[{
+                    value: '1班',
+                    label: '1班'
+                }, {
+                    value: '2班',
+                    label: '2班'
+                }, {
+                    value: '3班',
+                    label: '3班'
+                }, {
+                    value: '4班',
+                    label: '4班'
+                }, {
+                    value: '5班',
+                    label: '5班'
+                }],
+                g_class:'',
+                grades: [{
+                    value: '2018级',
+                    label: '2018级'
+                }, {
+                    value: '2019级',
+                    label: '2019级'
+                }, {
+                    value: '2020级',
+                    label: '2020级'
+                }, {
+                    value: '2021级',
+                    label: '2021级'
+                }, {
+                    value: '2022级',
+                    label: '2022级'
+                }],
+                grade: '',
+                ruleForm: {
+                    grade:'',
+                    major:'',
+                    g_class: '',
+                    instructor:'',
+                    instructor_phone:'',
+                    g_count:''
+                },
+                g_count:'',
+                rules: {
+                    instructor:[
+                        { validator: checkInstructor, trigger: 'blur' }
+                    ],
+                    instructor_phone:[
+                        { validator: checkInstructor_phone, trigger: 'blur' }
+                    ],
+                    g_count:[
+                        { validator: checkG_class, trigger: 'blur' }
+                    ]
+                }
+            };
+        },
+        methods: {
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        //如果表单校验通过
+                        //封装请求参数
+                        var formData = {
+                            grade:this.grade,
+                            major:this.major,
+                            g_class: this.g_class,
+                            instructor:this.ruleForm.instructor,
+                            instructor_phone:this.ruleForm.instructor_phone,
+                            g_count:this.ruleForm.g_count
+                        };
+                        //发送异步请求登入
+                        axios.post("/javaweb/grade/add.do",formData).then(response=>{
+                            if (response.data.flag) {
+                                //2. 跳转到首页
+                                window.location.href = "selAllGrade.html";
+                            }else {
+                                this.$message({
+                                    type:"error",
+                                    message:response.data.message,
+                                    showClear:true
+                                })
+                            }
+                        })
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            }
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+
+</script>
+</body>
+</html>

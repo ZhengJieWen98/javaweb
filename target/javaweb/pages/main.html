@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/element-ui.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/index.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../js/vue.js"></script>
+    <script src="../js/element-ui.js"></script>
+    <script src="../plugins/jquery/dist/jquery.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script src="../js/base.js"></script>
+</head>
+<body>
+<div id="app">
+    <el-menu
+            :default-active="activeIndex2"
+            class="el-menu-demo"
+            mode="horizontal"
+            @select="handleSelect"
+            background-color="#545c64"
+            text-color="#fff"
+            active-text-color="#ffd04b">
+        <el-menu-item index="1">班级管理</el-menu-item>
+        <el-menu-item index="2">教材管理</el-menu-item>
+        <el-menu-item index="3">班级教材</el-menu-item>
+        <el-menu-item index="4">学生管理</el-menu-item>
+    </el-menu>
+
+
+
+
+</div>
+
+<script>
+    new Vue({
+        el: "#app"
+    })
+</script>
+</body>
+</html>

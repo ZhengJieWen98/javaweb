@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>班级信息管理</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/element-ui.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/index.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../js/vue.js"></script>
+    <script src="../js/element-ui.js"></script>
+    <script src="../plugins/jquery/dist/jquery.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script src="../js/base.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="content-header common-search-border1">
+        <el-button class="butAdd" @click="handleCreate"><i class="fa fa-plus" aria-hidden="true"></i> 新增班级
+        </el-button>
+        &nbsp;&nbsp;
+        <el-button class="butAdd" ><i class="fa fa-plus" aria-hidden="true"></i> <a href="../grade/downloadAll.do">导出所有班级信息</a>
+        </el-button>
+    </div>
+    <br>
+    <div class="filter-container">
+        <!-- 搜索栏 -->
+        <el-form :inline="true" :model="requestParameters" ref="requestParameters" class="formInfo" label-width="70px">
+            <el-form-item label="专业名称" prop="name">
+                <el-input placeholder="请输入" v-model="requestParameters.major" style="width: 200px;" class="filter-item"></el-input>
+            </el-form-item>
+            <el-form-item label="辅导员" prop="author">
+                <el-input placeholder="请输入" v-model="requestParameters.instructor" style="width: 200px;" class="filter-item"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button @click="handleRest">清除</el-button>
+                <el-button type="primary" class="butOK" @click="handleSearch">搜索</el-button>
+            </el-form-item>
+        </el-form>
+    </div>
+
+    <br>
+    <el-table
+            :data="tableData"
+            border
+            style="width: 100%">
+        <el-table-column label="序号" align="center" width="50px">
+            <template slot-scope="scope">
+                <span>{{ scope.$index+1 }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="major"
+                label="专业"width="100">
+            <template slot-scope="scope">
+                <span>{{ scope.row.major }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="grade"
+                label="年级"
+                width="80">
+            <template slot-scope="scope">
+                <span>{{ scope.row.grade }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="g_class"
+                label="班级"
+                width="80">
+            <template slot-scope="scope">
+                <span>{{ scope.row.g_class }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="g_count"
+                label="人数"
+                width="50">
+            <template slot-scope="scope">
+                <span>{{ scope.row.g_count }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="instructor"
+                label="辅导员"
+                width="100">
+            <template slot-scope="scope">
+                <span>{{ scope.row.instructor }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="instructor_phone"
+                label="辅导员电话"
+                width="150">
+            <template slot-scope="scope">
+                <span>{{ scope.row.instructor_phone }}</span>
+            </template>
+        </el-table-column>
+
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width" >
+            <template slot-scope="scope">
+                <div class="operation">
+                    <el-button type="primary" size="mini" @click="handlePreview(scope.row)"><i class="fa fa-superpowers"
+                                                                                               aria-hidden="true"></i> 预览
+                    </el-button>
+                    <el-button type="primary" size="mini" @click="handleUpdate(scope.row)"><i class="fa fa-pencil-square-o"
+                                                                                              aria-hidden="true"></i> 修改
+                    </el-button>
+                    <el-button size="mini" type="danger" @click="handleDeleted(scope.row)"><i class="fa fa-trash-o" aria-hidden="true"></i>
+                        删除
+                    </el-button>
+                </div>
+            </template>
+        </el-table-column>
+    </el-table>
+    <div class="pagination-container">
+        <el-pagination class="pagiantion" v-show="pagination.total>0" @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                       :current-page="pagination.pageNum" :page-sizes="[10, 20, 50, 100]" :page-size="pagination.pageSize" layout="total, sizes, prev, pager, next, jumper"
+                       :total="pagination.total">
+        </el-pagination>
+    </div>
+
+</div>
+<script>
+    var vue = new Vue({
+        el:"#app",
+        data:{
+            pagination: {
+                total: 0,
+                pageNum: 1,
+                pageSize: 10
+            },
+            requestParameters: {
+                major:'',
+                instructor:''
+            },
+            tableData: []
+        },
+        created() {
+            this.getList();
+        },
+        methods:{
+            //试题分页列表
+            getList() {
+                let t = this;
+                // 必传参数
+                let params = {
+                    currentPage: t.pagination.pageNum, //当前页数
+                    pageSize: t.pagination.pageSize //每页数据条数
+                };
+                // 选传参数
+                let queryParams = {};
+                //搜索条件中的教材名称
+                let major = t.requestParameters.major;
+                if (major !== '') {
+                    queryParams.major = major;
+                }
+                //搜索条件中的教材作者
+                let instructor = t.requestParameters.instructor;
+                if (instructor !== '') {
+                    queryParams.instructor = instructor;
+                }
+                if (Object.keys(queryParams).length) {
+                    params.queryParams = queryParams;
+                }
+                // 请求参数时候{currentPage:,pageSize:,queryParams:{}}
+                axios.post("/javaweb/grade/selAll.do",params).then(response=>{
+                    if (response.data.flag) {
+                        this.pagination.total = response.data.result.total
+                        this.tableData = response.data.result.rows
+                    }else {
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClose:true
+                        })
+                    }
+                })
+            },
+            // 新增班级
+            handleCreate() {
+                //跳转页面，跳转到addBook.html
+                window.location.href = "addGrade.html";
+            },
+            // 预览班级信息
+            handlePreview(row) {
+                window.location.href = "gradePreview.html?pk_id=" + row.pk_id;
+            },
+            // 更新班级
+            handleUpdate(row) {
+                window.location.href = "gradeUpdate.html?pk_id=" + row.pk_id;
+            },
+            handleDeleted(row) {
+                this.$confirm('此操作将永久删除教材 ' + ', 是否继续?', '提示', {
+                    type: 'warning'
+                }).then(() => {
+                    let params = {
+                        pk_id: row.pk_id
+                    };
+                    axios.post("/javaweb/grade/delete.do",params).then(response=>{
+                        if (response.data.flag) {
+                            this.$message.success(response.data.message);
+                            this.getList();
+                        }else {
+                            this.$message({
+                                type:"error",
+                                message:response.data.message,
+                                showClose:true
+                            })
+                        }
+                    })
+
+                }).catch(() => {
+                    this.$message.info('已取消操作!');
+                });
+
+
+            },
+            //清除
+            handleRest() {
+                if (this.$refs['requestParameters']) {
+                    this.$refs['requestParameters'].resetFields();
+                }
+            },
+            handleSizeChange(val) {
+                this.pagination.pageSize = val;
+                this.pagination.pageNum = 1;
+                this.getList();
+            },
+            handleCurrentChange(val) {
+                this.pagination.pageNum = val;
+                this.getList();
+            },
+            //搜索
+            handleSearch() {
+                this.getList();
+            }
+        },
+    });
+</script>
+
+</body>
+</html>

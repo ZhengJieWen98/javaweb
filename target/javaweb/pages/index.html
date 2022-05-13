@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>教材管理系统</title>
+    <meta name="description" content="教材管理系统">
+    <meta name="keywords" content="教材管理系统">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/element-ui.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/index.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../js/vue.js"></script>
+    <script src="../js/element-ui.js"></script>
+    <script src="../plugins/jquery/dist/jquery.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script src="../js/base.js"></script>
+    <style>
+        .el-header {
+            background-color: #B3C0D1;
+            color: #333;
+            line-height: 60px;
+        }
+
+        .el-aside {
+            color: #333;
+        }
+    </style>
+    <script src="../js/jquery-3.5.0.js"></script>
+</head>
+
+<body>
+    <div id="app">
+
+        <el-container style="height: 500px; border: 1px solid #eee">
+            <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+                <el-menu :default-openeds="['1', '3']">
+                    <el-submenu index="1">
+                        <template slot="title"><i class="el-icon-message"></i>导航一</template>
+                        <el-menu-item-group>
+                            <template slot="title">教材管理系统</template>
+                            <el-menu-item index="1-1" @click="menu1()">班级管理</el-menu-item>
+                            <el-menu-item index="1-2" @click="menu2()">教材管理</el-menu-item>
+                            <el-menu-item index="1-3" @click="menu3()">班级教材</el-menu-item>
+<!--                            <el-menu-item index="1-4">学生管理</el-menu-item>-->
+                        </el-menu-item-group>
+                    </el-submenu>
+                </el-menu>
+            </el-aside>
+
+            <el-container>
+                <el-header style="text-align: right; font-size: 12px">
+                    <el-dropdown>
+                        <i class="el-icon-setting" style="margin-right: 15px"></i>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item divided>
+                                <span style="display:block;" @click="dialogVisible = true">修改密码</span>
+                            </el-dropdown-item>
+                            <el-dropdown-item divided>
+                                <span style="display:block;"><a href="#" @click="logout()">退出</a></span>
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                    <span>{{root.name}}</span>
+                </el-header>
+
+                <el-main>
+                    <iframe name="right" id="iframepage" class="el-main"
+                            src="selAllGrade.html" width="100%" height="100%" frameborder="0" ranat="server"></iframe>
+                </el-main>
+            </el-container>
+        </el-container>
+
+        <el-dialog
+                title="修改密码"
+                :visible.sync="dialogVisible"
+                width="30%"
+                :before-close="handleClose">
+                <el-input v-model="password" placeholder="请输入修改密码"></el-input>
+                <br/><br/>
+                <el-input v-model="passwordSure" placeholder="确定修改密码"></el-input>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="updatePassword">确 定 修 改</el-button>
+                </span>
+        </el-dialog>
+
+    </div>
+    <script>
+        new Vue({
+            el: "#app",
+            data:{
+                root:{},
+                dialogVisible: false,
+                password:'',
+                passwordSure:''
+            },
+            created() {
+                this.checkLogin();
+            },
+            methods:{
+                checkLogin(){
+                    //发送异步请求登入
+                    axios.post("/javaweb/root/checkLogin.do").then(response=>{
+                        if (response.data.flag) {
+                            //管理员已经登入过
+                            this.root=response.data.result
+                        }else {
+                            //管理员没有登入或者登入失效
+                            this.$message({
+                                type:"error",
+                                message:response.data.message,
+                                showClear:true
+                            })
+                            window.location.href="../login.html"
+                        }
+                    })
+                },
+                updatePassword(){
+
+                    if(this.password!=this.passwordSure){
+                        this.$message({
+                            showClose: true,
+                            message: '2次密码不一直',
+                            type: 'error'
+                        });
+                        return
+                    }
+                    var par = {
+                        pk_id:this.root.pk_id,
+                        account:this.root.account,
+                        password:this.password
+                    }
+
+                    //发送异步请求登入
+                    axios.post("/javaweb/root/update.do",par).then(response=>{
+                        if (response.data.flag) {
+                            this.dialogVisible=false;
+                            this.$message({
+                                type:"success",
+                                message:response.data.message,
+                                showClear:true
+                            })
+                        }else {
+                            //管理员没有登入或者登入失效
+                            this.$message({
+                                type:"error",
+                                message:response.data.message,
+                                showClear:true
+                            })
+                            window.location.href="../login.html"
+                        }
+                    })
+                },
+                logout(){
+                    //发送异步请求登入
+                    axios.post("/javaweb/root/logout.do").then(response=>{
+                        if (response.data.flag) {
+                            //管理员退出
+                            this.$message({
+                                type:"success",
+                                message:response.data.message,
+                                showClear:true
+                            })
+                            window.location.href="../login.html"
+                        }else {
+                            //管理员退出失败
+                            this.$message({
+                                type:"error",
+                                message:response.data.message,
+                                showClear:true
+                            })
+                        }
+                    })
+                },
+                menu1(){
+                    var iframepage = document.getElementById("iframepage");
+                    iframepage.setAttribute("src","selAllGrade.html")
+                },
+                menu2(){
+                    var iframepage = document.getElementById("iframepage");
+                    iframepage.setAttribute("src","selAllBook.html")
+                },
+                menu3(){
+                    var iframepage = document.getElementById("iframepage");
+                    iframepage.setAttribute("src","selAllGradeBook.html")
+                }
+            }
+
+        })
+    </script>
+</body>
+</html>

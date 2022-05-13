@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <title>管理员登入</title>
+    <meta name="description" content="教材管理系统">
+    <meta name="keywords" content="教材管理系统">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="css/element-ui.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style type="text/css">
+    
+    </style>
+</head>
+
+<body class="loginBg">
+    <div id="app" class="mainBg">
+        <div class="loginMain">
+          <div class="logoInfo clear">
+            <em class="logo"></em>
+            <span class="logoFontZ">教材管理系统</span>
+            <span>管理员登录</span>
+          </div>
+            <span v-html="form.info"></span>
+          <div class="loginCon">
+            <el-form ref="form" :model="form" :rules="rules">
+              <el-form-item>
+                <el-input v-model="form.account" placeholder="用户名">
+                </el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-input v-model="form.password" type="password" placeholder="密码">
+                </el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="onSubmit">登录</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
+        </div>
+    </div>
+</body>
+<!-- 引入组件库 -->
+<script src="js/vue.js"></script>
+<script src="js/element-ui.js"></script>
+<script src="plugins/jquery/dist/jquery.js"></script>
+<script src="js/axios-0.18.0.js"></script>
+<script src="js/base.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                form:{
+                  mobile:'',
+                  code:'',
+                  checked:'',
+                    info:''
+                },
+                rules: {
+                    account: [
+                        { required: true, message: '请填写', trigger: 'blur' }
+                    ],
+                    password: [
+                        { required: true, message: '请填写', trigger: 'blur' }
+                    ]
+                },
+                mobileShow:false,
+                codeShow:false
+            }
+        },
+        created() {},
+        methods: {
+          onSubmit(){
+              var t = this;
+              //校验表单
+              this.$refs['form'].validate((valid) => {
+                  if (valid) {
+                    this.$refs['form'].validate((valid) => {
+                      if (valid) {
+
+                        //如果表单校验通过
+                        //封装请求参数
+                        var formData = {
+                          account: this.form.account,
+                          password: this.form.password
+                        };
+                        //发送异步请求登入
+                        axios.post("/javaweb/root/login.do",formData).then(response=>{
+                            if (response.data.flag) {
+                                //登录成功
+                                //1. 将当前用户的account存储到前端的sessionStorage里面
+                                console.log(formData.account)
+                                sessionStorage.setItem("account",formData.account)
+                                //2. 跳转到首页
+                                location.href = "pages/index.html"
+                            }else {
+                                this.$message({
+                                    type:"error",
+                                    message:response.data.message,
+                                    showClear:true
+                                })
+                            }
+                        })
+                      }
+                    });
+                  }
+              });
+          }
+        }
+    })
+    $("#app").height($(window).height())
+</script>
+</html>

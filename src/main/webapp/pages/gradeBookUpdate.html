@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>更新班级教材</title>
+    <meta name="description" content="教材管理系统">
+    <meta name="keywords" content="教材管理系统">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/element-ui.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/index.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../js/vue.js"></script>
+    <script src="../js/element-ui.js"></script>
+    <script src="../plugins/jquery/dist/jquery.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script src="../js/base.js"></script>
+</head>
+<body>
+<div id="app">
+    <h2 align="center">班级更新教材书籍</h2>
+    <div align="center">
+        年级:
+        <el-select v-model="grade" placeholder="请选择年级" @change="getMajor">
+            <el-option
+                    v-for="item in grades"
+                    :key="item.grade"
+                    :label="item.grade"
+                    :value="item.grade">
+            </el-option>
+        </el-select>
+        <br><br>
+        专业:
+        <el-select v-model="major" placeholder="请选择专业" @change="getG_class">
+            <el-option
+                    v-for="item in majors"
+                    :key="item.major"
+                    :label="item.major"
+                    :value="item.major">
+            </el-option>
+        </el-select>
+        <br><br>
+        班级:
+        <el-select v-model="g_class" placeholder="请选择班级">
+            <el-option
+                    v-for="item in g_classs"
+                    :key="item.g_class"
+                    :label="item.g_class"
+                    :value="item.g_class">
+            </el-option>
+        </el-select>
+        <br><br>
+        教材:
+        <el-select v-model="bookName" placeholder="请选择教材" @change="getBookAuthor">
+            <el-option
+                    v-for="item in bookNames"
+                    :key="item.name"
+                    :label="item.name"
+                    :value="item.name">
+            </el-option>
+        </el-select>
+        <br><br>
+        作者:
+        <el-select v-model="bookAuthor" placeholder="请选择教材作者" @change="getBookPrice">
+            <el-option
+                    v-for="item in bookAuthors"
+                    :key="item.author"
+                    :label="item.author"
+                    :value="item.author">
+            </el-option>
+        </el-select>
+        <br><br>
+        价格:{{bookPrice}}
+        <br/><br/>
+        <el-button type="success" plain @click="updataGradeBook()">确定修改班级教材</el-button>
+
+
+    </div>
+</div>
+<script>
+    var vue = new Vue({
+        el:"#app",
+        data:{
+            grades: [],
+            grade: '',
+            majors:[],
+            major:'',
+            g_classs:[],
+            g_class:'',
+            bookNames:[],
+            bookName:'',
+            bookAuthors:[],
+            bookAuthor:'',
+            bookPrice:'',
+            pk_id:''
+        },
+        created(){
+            this.pk_id = parseInt(this.getUrlParam("pk_id"), 10);
+            this.getGrade();
+            this.getBookName();
+            this.initForm();
+        },
+        methods:{
+            //获取url参数
+            getUrlParam(name) {
+                let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                let r = window.location.search.substr(1).match(reg);
+                if (r != null) return unescape(r[2]);
+                return null;
+            },
+            initForm(){
+                var formData = {
+                    pk_id:this.pk_id
+                };
+                //发送异步请求登入
+                axios.post("/javaweb/gradeBook/selByPk_id.do",formData).then(response=>{
+                    if (response.data.flag) {
+                        this.grade = response.data.result.grade;
+                        this.major = response.data.result.major;
+                        this.g_class = response.data.result.g_class;
+                        this.bookName = response.data.result.bookName;
+                        this.bookAuthor = response.data.result.bookAuthor;
+                        this.bookPrice = response.data.result.bookPrice;
+                    }else {
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClear:true
+                        })
+                    }
+                })
+            },
+            getGrade(){
+                //发送异步请求登入
+                axios.post("/javaweb/grade/selAllGrade.do").then(response=>{
+                    if (response.data.flag) {
+                        this.grades=response.data.result;
+                    }else {
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClear:true
+                        })
+                    }
+                })
+            },
+            getMajor(){
+                var pas = {
+                    grade: this.grade
+                };
+                //发送异步请求登入
+                axios.post("/javaweb/grade/selAllMajor.do",pas).then(response=>{
+                    //封装请求参数
+                    if (response.data.flag,pas) {
+                        this.major='';
+                        this.majors=[]
+                        this.g_class='';
+                        this.g_classs=[]
+                        this.majors=response.data.result;
+                    }else {
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClear:true
+                        })
+                    }
+                })
+            },
+            getG_class(){
+                var pas = {
+                    grade: this.grade,
+                    major: this.major
+                };
+                //发送异步请求登入
+                axios.post("/javaweb/grade/selByGradeAndMajor.do",pas).then(response=>{
+                    //封装请求参数
+                    if (response.data.flag,pas) {
+                        this.g_class='';
+                        this.g_classs=[]
+                        this.g_classs=response.data.result;
+                    }else {
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClear:true
+                        })
+                    }
+                })
+            },
+            getBookName(){
+                //发送异步请求登入
+                axios.post("/javaweb/book/selAllBookName.do").then(response=>{
+                    if (response.data.flag) {
+                        this.bookNames=response.data.result;
+                    }else {
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClear:true
+                        })
+                    }
+                })
+            },
+            getBookAuthor(){
+                var pas = {
+                    name: this.bookName
+                };
+                //发送异步请求登入
+                axios.post("/javaweb/book/getBookAuthorByBookName.do",pas).then(response=>{
+                    //封装请求参数
+                    if (response.data.flag,pas) {
+                        this.bookAuthors=[];
+                        this.bookAuthor='';
+                        this.bookPrice='';
+                        this.bookAuthors=response.data.result;
+                    }else {
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClear:true
+                        })
+                    }
+                })
+            },
+            getBookPrice(){
+                var pas = {
+                    name: this.bookName,
+                    author: this.bookAuthor
+                };
+                //发送异步请求登入
+                axios.post("/javaweb/book/getBookPrice.do",pas).then(response=>{
+                    //封装请求参数
+                    if (response.data.flag,pas) {
+                        this.bookPrice=response.data.result.price;
+                    }else {
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClear:true
+                        })
+                    }
+                })
+            },
+            updataGradeBook(){
+                var pas = {
+                    pk_id: this.pk_id,
+                    grade: this.grade,
+                    major: this.major,
+                    g_class: this.g_class,
+                    bookName: this.bookName,
+                    bookAuthor: this.bookAuthor,
+                    bookPrice: this.bookPrice
+                };
+                //发送异步请求登入
+                axios.post("/javaweb/gradeBook/update.do",pas).then(response=>{
+                    //封装请求参数
+                    if (response.data.flag,pas) {
+                        //window.location.href = "selAllGradeBook.html";
+                    }else {
+                        this.$message({
+                            type:"error",
+                            message:response.data.message,
+                            showClear:true
+                        })
+                    }
+                })
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>详情教材书籍信息</title>
+    <meta name="description" content="教材管理系统">
+    <meta name="keywords" content="教材管理系统">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../css/element-ui.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/vue.js"></script>
+    <script src="../js/index.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../js/vue.js"></script>
+    <script src="../js/element-ui.js"></script>
+    <script src="../plugins/jquery/dist/jquery.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script src="../js/base.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-page-header @back="goBack" content="详情页面">
+        </el-page-header>
+        <div style="height: 10px"></div>
+        <template>
+            <div align="center">
+                <span>教材名称:{{textBook.name}}</span>
+                <el-divider></el-divider>
+                <span>教材作者:{{textBook.author}}</span>
+                <el-divider></el-divider>
+                <span>教材价格:{{textBook.price}}</span>
+                <el-divider></el-divider>
+                <span>添加教材时间:{{textBook.create_time}}</span>
+                <el-divider></el-divider>
+                <span>最近修改教材时间:{{textBook.modified_time}}</span>
+            </div>
+        </template>
+
+    </div>
+
+    <script>
+        var vue = new Vue({
+            el:"#app",
+            data:{
+                textBook:{
+                    pk_id:'',
+                    name:'',
+                    author:'',
+                    price: '',
+                    create_time:'',
+                    modified_time:''
+                }
+            },
+            created() {
+                this.textBook.pk_id = parseInt(this.getUrlParam("pk_id"), 10);
+                this.getInfo();
+            },
+            methods:{
+                goBack() {
+                    window.history.go(-1);//返回上一页不刷新
+                },
+                //获取url参数
+                getUrlParam(name) {
+                    let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                    let r = window.location.search.substr(1).match(reg);
+                    if (r != null) return unescape(r[2]);
+                    return null;
+                },
+                getInfo(){
+                    var formData = {
+                        pk_id:this.textBook.pk_id
+                    };
+                    //发送异步请求登入
+                    axios.post("/javaweb/book/selByPk_id.do",formData).then(response=>{
+                        if (response.data.flag) {
+                            this.textBook = response.data.result;
+                        }else {
+                            this.$message({
+                                type:"error",
+                                message:response.data.message,
+                                showClear:true
+                            })
+                        }
+                    })
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
