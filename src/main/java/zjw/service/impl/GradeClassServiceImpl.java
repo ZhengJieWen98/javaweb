@@ -61,8 +61,8 @@ public class GradeClassServiceImpl implements GradeClassService {
     }
 
     @Override
-    public List<GradeClass> getAllGradeClass() {
-        List<GradeClass> list = dao.getAllGradeClass();
+    public List<GradeClass> getAllGradeClass(Map queryParams) {
+        List<GradeClass> list = dao.getAllGradeClass(queryParams);
         if(list.size()>0){
             return list;
         }else{

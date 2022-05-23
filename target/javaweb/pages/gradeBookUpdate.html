@@ -76,7 +76,7 @@
         <br><br>
         价格:{{bookPrice}}
         <br/><br/>
-        <el-button type="success" plain @click="updataGradeBook()">确定修改班级教材</el-button>
+        <el-button type="success" plain @click="updataGradeBook">确定修改班级教材</el-button>
 
 
     </div>
@@ -120,9 +120,63 @@
                 axios.post("/javaweb/gradeBook/selByPk_id.do",formData).then(response=>{
                     if (response.data.flag) {
                         this.grade = response.data.result.grade;
+                        var pas = {
+                            grade: this.grade
+                        };
+                        //发送异步请求登入
+                        axios.post("/javaweb/grade/selAllMajor.do",pas).then(response=>{
+                            //封装请求参数
+                            if (response.data.flag,pas) {
+                                this.majors=response.data.result;
+                            }else {
+                                this.$message({
+                                    type:"error",
+                                    message:response.data.message,
+                                    showClear:true
+                                })
+                            }
+                        })
+
                         this.major = response.data.result.major;
+
+                        pas = {
+                            grade: this.grade,
+                            major: this.major
+                        };
+                        //发送异步请求登入
+                        axios.post("/javaweb/grade/selByGradeAndMajor.do",pas).then(response=>{
+                            //封装请求参数
+                            if (response.data.flag,pas) {
+                                this.g_classs=response.data.result;
+                            }else {
+                                this.$message({
+                                    type:"error",
+                                    message:response.data.message,
+                                    showClear:true
+                                })
+                            }
+                        })
+
                         this.g_class = response.data.result.g_class;
                         this.bookName = response.data.result.bookName;
+
+                        pas = {
+                            name: this.bookName
+                        };
+                        //发送异步请求登入
+                        axios.post("/javaweb/book/getBookAuthorByBookName.do",pas).then(response=>{
+                            //封装请求参数
+                            if (response.data.flag,pas) {
+                                this.bookAuthors=response.data.result;
+                            }else {
+                                this.$message({
+                                    type:"error",
+                                    message:response.data.message,
+                                    showClear:true
+                                })
+                            }
+                        })
+
                         this.bookAuthor = response.data.result.bookAuthor;
                         this.bookPrice = response.data.result.bookPrice;
                     }else {
@@ -258,8 +312,15 @@
                 //发送异步请求登入
                 axios.post("/javaweb/gradeBook/update.do",pas).then(response=>{
                     //封装请求参数
-                    if (response.data.flag,pas) {
-                        //window.location.href = "selAllGradeBook.html";
+                    if (response.data.flag) {
+                        this.$message({
+                            type:"success",
+                            message:response.data.message,
+                            showClear:true
+                        })
+                        setInterval(function () {
+                            window.location.href = "selAllGradeBook.html";
+                        },1000);
                     }else {
                         this.$message({
                             type:"error",

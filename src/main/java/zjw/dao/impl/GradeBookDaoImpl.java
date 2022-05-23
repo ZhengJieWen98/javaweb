@@ -100,17 +100,6 @@ public class GradeBookDaoImpl implements GradeBookDao {
 
     @Override
     public List<GradeBook> getAllGradeBook(Map queryParams) {
-        // 1.创建QueryRunner对象,传入连接池
-//        QueryRunner qr = new QueryRunner(C3P0Utils.getDataSource());
-//        String sql = "select * from grade_book";
-//        try {
-//            List<GradeBook> list = qr.query(sql, new BeanListHandler<>(GradeBook.class));
-//            return list;
-//        } catch (SQLException throwables) {
-//            throwables.printStackTrace();
-//            throw new RuntimeException("查询所有班级异常");
-//        }
-
         QueryRunner qr = new QueryRunner(C3P0Utils.getDataSource());
         List<GradeBook> list = null;
         try {

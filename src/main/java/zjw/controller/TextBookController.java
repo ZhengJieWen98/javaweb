@@ -21,7 +21,7 @@ import java.util.Map;
 @Controller
 public class TextBookController {
     private TextBookService service = new TextBookServiceImpl();
-
+    private Map queryParams=null;
     @RequestMapping("/book/add")
     public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -73,7 +73,7 @@ public class TextBookController {
             //1. 获取请求参数
             QueryPageBean queryPageBean = JsonUtils.parseJSON2Object(request,QueryPageBean.class);
             List<TextBook> list = service.selectAll(queryPageBean);
-
+            queryParams=queryPageBean.getQueryParams();
             long count = service.getCount(queryPageBean.getQueryParams());
 
             PageResult pageResult = new PageResult();
@@ -151,7 +151,7 @@ public class TextBookController {
     public void downloadAll(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         //String s = TextBookController.class.getClassLoader().getResource("").toString();
-        List<TextBook> allTextBook = service.getAllTextBook();
+        List<TextBook> allTextBook = service.getAllTextBook(queryParams);
         ExcelUtil.fillExcel_TextBook(allTextBook,new File("textBook.xlsx"));
         response.setHeader("Content-Disposition", "attachment;filename=books_.xlsx");
         //把二进制流放入到响应体中.

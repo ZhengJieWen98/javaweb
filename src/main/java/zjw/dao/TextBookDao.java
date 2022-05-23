@@ -42,7 +42,7 @@ public interface TextBookDao {
      * 查询所有的书籍
      * @return
      */
-    List<TextBook> getAllTextBook();
+    List<TextBook> getAllTextBook(Map queryParams);
 
     /**
      * 查询总数据

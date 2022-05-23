@@ -133,8 +133,14 @@
                         //发送异步请求登入
                         axios.post("/javaweb/book/update.do",formData).then(response=>{
                             if (response.data.flag) {
-                                //2. 跳转到首页
-                                window.location.href = "selAllBook.html";
+                                this.$message({
+                                    type:"success",
+                                    message:response.data.message,
+                                    showClear:true
+                                })
+                                setInterval(function () {
+                                    window.location.href = "selAllBook.html";
+                                },1000);
                             }else {
                                 this.$message({
                                     type:"error",

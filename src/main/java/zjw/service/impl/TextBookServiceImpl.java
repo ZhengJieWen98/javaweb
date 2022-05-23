@@ -57,8 +57,8 @@ public class TextBookServiceImpl implements TextBookService {
     }
 
     @Override
-    public List<TextBook> getAllTextBook() {
-        List<TextBook> list = dao.getAllTextBook();
+    public List<TextBook> getAllTextBook(Map queryParams) {
+        List<TextBook> list = dao.getAllTextBook(queryParams);
         if(list.size()>0){
             return list;
         }else{

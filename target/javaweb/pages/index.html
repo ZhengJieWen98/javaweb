@@ -141,6 +141,8 @@
                     axios.post("/javaweb/root/update.do",par).then(response=>{
                         if (response.data.flag) {
                             this.dialogVisible=false;
+                            this.password='';
+                            this.passwordSure='';
                             this.$message({
                                 type:"success",
                                 message:response.data.message,

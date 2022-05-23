@@ -21,7 +21,7 @@
         <el-button class="butAdd" @click="handleCreate"><i class="fa fa-plus" aria-hidden="true"></i> 新增班级
         </el-button>
         &nbsp;&nbsp;
-        <el-button class="butAdd" ><i class="fa fa-plus" aria-hidden="true"></i> <a href="../grade/downloadAll.do">导出所有班级信息</a>
+        <el-button type="success" ><i aria-hidden="true"></i> <a href="../grade/downloadAll.do">导出当前搜索班级信息</a>
         </el-button>
     </div>
     <br>
@@ -29,10 +29,10 @@
         <!-- 搜索栏 -->
         <el-form :inline="true" :model="requestParameters" ref="requestParameters" class="formInfo" label-width="70px">
             <el-form-item label="专业名称" prop="name">
-                <el-input placeholder="请输入" v-model="requestParameters.major" style="width: 200px;" class="filter-item"></el-input>
+                <el-input placeholder="请输入专业名称" v-model="requestParameters.major" style="width: 200px;" class="filter-item"></el-input>
             </el-form-item>
             <el-form-item label="辅导员" prop="author">
-                <el-input placeholder="请输入" v-model="requestParameters.instructor" style="width: 200px;" class="filter-item"></el-input>
+                <el-input placeholder="请输入辅导员" v-model="requestParameters.instructor" style="width: 200px;" class="filter-item"></el-input>
             </el-form-item>
             <el-form-item>
                 <el-button @click="handleRest">清除</el-button>
@@ -127,6 +127,7 @@
     var vue = new Vue({
         el:"#app",
         data:{
+            isSearch:false,
             pagination: {
                 total: 0,
                 pageNum: 1,
@@ -145,6 +146,11 @@
             //试题分页列表
             getList() {
                 let t = this;
+                // 是否为搜索
+                if(this.isSearch){
+                    this.isSearch=false;
+                    t.pagination.pageNum=1
+                }
                 // 必传参数
                 let params = {
                     currentPage: t.pagination.pageNum, //当前页数
@@ -220,9 +226,8 @@
             },
             //清除
             handleRest() {
-                if (this.$refs['requestParameters']) {
-                    this.$refs['requestParameters'].resetFields();
-                }
+                this.requestParameters.major='';
+                this.requestParameters.instructor='';
             },
             handleSizeChange(val) {
                 this.pagination.pageSize = val;
@@ -235,6 +240,7 @@
             },
             //搜索
             handleSearch() {
+                this.isSearch=true;
                 this.getList();
             }
         },

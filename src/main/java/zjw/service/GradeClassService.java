@@ -38,7 +38,7 @@ public interface GradeClassService {
      */
     List<GradeClass> selectAll(QueryPageBean queryPageBean);
 
-    List<GradeClass> getAllGradeClass();
+    List<GradeClass> getAllGradeClass(Map queryParams);
 
     /**
      * 查询班级总数

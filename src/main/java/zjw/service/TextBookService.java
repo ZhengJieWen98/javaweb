@@ -36,7 +36,7 @@ public interface TextBookService {
      * @return
      */
     List<TextBook> selectAll(QueryPageBean queryPageBean);
-    List<TextBook> getAllTextBook();
+    List<TextBook> getAllTextBook(Map queryParams);
 
 
     long getCount(Map queryParams);

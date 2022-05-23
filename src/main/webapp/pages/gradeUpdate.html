@@ -209,8 +209,14 @@
                         //发送异步请求登入
                         axios.post("/javaweb/grade/update.do",formData).then(response=>{
                             if (response.data.flag) {
-                                //2. 跳转到首页
-                                window.location.href = "selAllGrade.html";
+                                this.$message({
+                                    type:"success",
+                                    message:response.data.message,
+                                    showClear:true
+                                })
+                                setInterval(function () {
+                                    window.location.href = "selAllGrade.html";
+                                },1000);
                             }else {
                                 this.$message({
                                     type:"error",

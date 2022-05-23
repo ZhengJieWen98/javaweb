@@ -109,16 +109,41 @@ public class TextBookDaoImpl implements TextBookDao {
     }
 
     @Override
-    public List<TextBook> getAllTextBook() {
+    public List<TextBook> getAllTextBook(Map queryParams) {
+        // 1.创建QueryRunner对象,传入连接池
         // 1.创建QueryRunner对象,传入连接池
         QueryRunner qr = new QueryRunner(C3P0Utils.getDataSource());
-        String sql = "select * from text_book";
+        List<TextBook> list = null;
         try {
-            List<TextBook> list = qr.query(sql, new BeanListHandler<>(TextBook.class));
+            if(queryParams==null){
+                String sql = "select * from text_book";
+                list = qr.query(sql, new BeanListHandler<>(TextBook.class));
+            }else if(queryParams.size()==2){
+                String sql = "select * from `text_book` where name like ? and author like ?";
+                String name = (String) queryParams.get("name");
+                String author = (String) queryParams.get("author");
+                list = qr.query(sql, new BeanListHandler<>(TextBook.class),"%"+name+"%","%"+author+"%");
+            }else if(queryParams.size()==1){
+                Set key = queryParams.keySet();
+                Iterator iterator = key.iterator();
+                String next="";
+                while (iterator.hasNext()){
+                    next = (String) iterator.next();
+                }
+                if(next.equals("name")){
+                    String sql = "select * from `text_book` where name like ?";
+                    String name = (String) queryParams.get("name");
+                    list = qr.query(sql, new BeanListHandler<>(TextBook.class),"%"+name+"%");
+                }else{
+                    String sql = "select * from `text_book` where author like ?";
+                    String author = (String) queryParams.get("author");
+                    list = qr.query(sql, new BeanListHandler<>(TextBook.class),"%"+author+"%");
+                }
+            }
             return list;
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-            throw new RuntimeException("查询所有教材书籍异常");
+            throw new RuntimeException("查询所有教材信息异常");
         }
     }
 

@@ -22,7 +22,8 @@ import java.util.Map;
 @Controller
 public class GradeClassController {
     private GradeClassService service = new GradeClassServiceImpl();
-
+    //根据该查询条件下载班级教材信息
+    private Map queryParams_download=null;
     @RequestMapping("/grade/add")
     public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -73,6 +74,7 @@ public class GradeClassController {
     public void selectAll(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             QueryPageBean queryPageBean = JsonUtils.parseJSON2Object(request,QueryPageBean.class);
+            queryParams_download = queryPageBean.getQueryParams();
             List<GradeClass> list = service.selectAll(queryPageBean);
             PageResult pageResult = new PageResult();
             pageResult.setRows(list);
@@ -150,7 +152,7 @@ public class GradeClassController {
     public void downloadAll(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         //String s = TextBookController.class.getClassLoader().getResource("").toString();
-        List<GradeClass> list = service.getAllGradeClass();
+        List<GradeClass> list = service.getAllGradeClass(queryParams_download);
         ExcelUtil.fillExcel_GradeClass(list,new File("grade_class.xlsx"));
         response.setHeader("Content-Disposition", "attachment;filename=grade_class.xlsx");
         //把二进制流放入到响应体中.

@@ -21,7 +21,7 @@
             <el-button class="butAdd" @click="handleCreate"><i class="fa fa-plus" aria-hidden="true"></i> 新增班级教材
             </el-button>
             &nbsp;&nbsp;
-            <el-button class="butAdd" ><i class="fa fa-plus" aria-hidden="true"></i> <a href="../gradeBook/downloadAll.do">导出当前查询班级教材信息</a>
+            <el-button type="success" ><i aria-hidden="true"></i> <a href="../gradeBook/downloadAll.do">导出当前查询班级教材信息</a>
             </el-button>
         </div>
         <br>
@@ -149,6 +149,7 @@
         var vue = new Vue({
             el:"#app",
             data:{
+                isSearch:false,
                 grades: [],
                 grade: '',
                 majors:[],
@@ -228,11 +229,17 @@
                 //试题分页列表
                 getList() {
                     let t = this;
+                    // 是否为搜索
+                    if(this.isSearch){
+                        this.isSearch=false;
+                        t.pagination.pageNum=1
+                    }
                     // 必传参数
                     let params = {
                         currentPage: t.pagination.pageNum, //当前页数
                         pageSize: t.pagination.pageSize //每页数据条数
                     };
+
                     // 选传参数
                     let queryParams = {};
                     //搜索条件中的年级名称
@@ -323,6 +330,7 @@
                 },
                 //搜索
                 handleSearch() {
+                    this.isSearch=true;
                     this.getList();
                 }
             },

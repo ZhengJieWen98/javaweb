@@ -9,9 +9,7 @@ import zjw.entity.G_Class;
 import zjw.entity.Grade;
 import zjw.entity.Major;
 import zjw.entity.QueryPageBean;
-import zjw.pojo.GradeBook;
 import zjw.pojo.GradeClass;
-import zjw.pojo.TextBook;
 import zjw.utils.C3P0Utils;
 
 import java.sql.SQLException;
@@ -111,17 +109,54 @@ public class GradeClassDaoImpl implements GradeClassDao {
     }
 
     @Override
-    public List<GradeClass> getAllGradeClass() {
+    public List<GradeClass> getAllGradeClass(Map queryParams) {
+        // 1.创建QueryRunner对象,传入连接池
+//        QueryRunner qr = new QueryRunner(C3P0Utils.getDataSource());
+//        String sql = "select * from grade_class";
+//        try {
+//            List<GradeClass> list = qr.query(sql, new BeanListHandler<>(GradeClass.class));
+//            return list;
+//        } catch (SQLException throwables) {
+//            throwables.printStackTrace();
+//            throw new RuntimeException("查询所有班级异常");
+//        }
+
         // 1.创建QueryRunner对象,传入连接池
         QueryRunner qr = new QueryRunner(C3P0Utils.getDataSource());
-        String sql = "select * from grade_class";
+
+        List<GradeClass> list = null;
         try {
-            List<GradeClass> list = qr.query(sql, new BeanListHandler<>(GradeClass.class));
+            if(queryParams==null){
+                String sql = "select * from grade_class";
+                list = qr.query(sql, new BeanListHandler<>(GradeClass.class));
+            }else if(queryParams.size()==2){
+                String sql = "select * from grade_class where major like ? and instructor";
+                String major = (String) queryParams.get("major");
+                String instructor = (String) queryParams.get("instructor");
+                list = qr.query(sql, new BeanListHandler<>(GradeClass.class),"%"+major+"%","%"+instructor+"%");
+            }else if(queryParams.size()==1){
+                Set key = queryParams.keySet();
+                Iterator iterator = key.iterator();
+                String next="";
+                while (iterator.hasNext()){
+                    next = (String) iterator.next();
+                }
+                if(next.equals("major")){
+                    String sql = "select * from grade_class where major like ?";
+                    String major = (String) queryParams.get("major");
+                    list = qr.query(sql, new BeanListHandler<>(GradeClass.class),"%"+major+"%");
+                }else{
+                    String sql = "select * from grade_class where instructor like ?";
+                    String instructor = (String) queryParams.get("instructor");
+                    list = qr.query(sql, new BeanListHandler<>(GradeClass.class),"%"+instructor+"%");
+                }
+            }
             return list;
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-            throw new RuntimeException("查询所有班级异常");
+            throw new RuntimeException("查询所有教材信息异常");
         }
+
     }
 
     @Override
@@ -134,7 +169,7 @@ public class GradeClassDaoImpl implements GradeClassDao {
                 String sql = "select count(*) from grade_class";
                 count = (Long) qr.query(sql, new ScalarHandler());
             }else if(queryParams.size()==2){
-                String sql = "select count(*) from grade_class where major like ? and instructor like ? limit ?,?";
+                String sql = "select count(*) from grade_class where major like ? and instructor like ?";
                 String major = (String) queryParams.get("major");
                 String instructor = (String) queryParams.get("instructor");
                 count = (Long) qr.query(sql, new ScalarHandler(),"%"+major+"%","%"+instructor+"%");
